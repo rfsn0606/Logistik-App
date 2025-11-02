@@ -23,8 +23,12 @@ st.markdown("""
     html, body, [class*="css"] {
         font-family: 'Poppins', sans-serif;
         font-size: 16px;
-        color: #1E293B;
-        background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+        color: #6B8E23;
+        background: url('https://www.toptal.com/designers/subtlepatterns/uploads/dot-grid.png'), 
+            linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+        background-repeat: repeat;
+        background-attachment: fixed;
+
         margin: 0;
         padding: 0;
     }
@@ -87,7 +91,7 @@ st.markdown("""
     /* Gambar di card barang */
     .card img {
         width: 100%;
-        height: 150px;
+        height: 300px;
         object-fit: cover;
         border-radius: 12px;
         margin-bottom: 15px;
@@ -172,60 +176,65 @@ if 'page' not in st.session_state:
     st.session_state.page = 'home'
 
 # Data stok dengan 30 jenis barang (cocok untuk logistik: kemasan, bahan baku, dll.)
-# Menggunakan URL gambar placeholder dari unsplash untuk demo
+# Menggunakan URL gambar dari unsplash untuk demo
 if "stok" not in st.session_state:
     st.session_state.stok = pd.DataFrame({
-        "Nama Barang": [
-            "Karton", "Botol Plastik", "Label Stiker", "Tutup Botol", "Dus Kardus", "Palet Kayu", "Kantong Plastik",
-            "Bungkus Vakum", "Pita Pengikat", "Kotak Makanan", "Gelas Kertas", "Sendok Plastik", "Sedotan", "Tisu Basah",
-            "Sabun Cuci", "Deterjen", "Kemasan Bubble Wrap", "Kertas Wrapping", "Box Hadiah", "Tas Belanja",
-            "Botol Kaca", "Kaleng Minuman", "Tutup Kaleng", "Label Kemasan", "Pembungkus Makanan", "Kantong Kertas",
-            "Palet Plastik", "Kemasan Vakum", "Kotak Kardus Besar", "Bahan Pengisi"
+        "Daftar Barang": [
+            "Kain Katun", "Kain Polyester", "Kain Denim", "Kain Satin", "Kain Fleece", "Benang Katun", "Benang Polyester","Benang Sulam/Embroidery",
+            "Pewarna Kain","Kancing", "Zipper/Resleting", "Label Pakaian", "Jarum Jahit","Tali/Pita","Mesin Jahit","Mesin Sablon","Mesin Potong Kain",
+            "Mesin Bordir","Papan Pola/Pattern","Kertas Pola/Pattern","Meja Jahit","Setrika/Ironing","Manekin/Dummy","Peniti/Safety Pin",
         ],
-        "Jumlah Stok": [120, 200, 150, 300, 90, 50, 180, 220, 140, 160, 190, 250, 300, 100, 80, 120, 170, 130, 110, 140,
-                        90, 200, 180, 160, 210, 150, 70, 190, 100, 230],
-        "Satuan": ["pcs", "pcs", "pcs", "pcs", "pcs", "pcs", "pcs", "roll", "roll", "pcs", "pcs", "pcs", "pcs", "pack",
-                   "liter", "kg", "roll", "roll", "pcs", "pcs", "pcs", "pcs", "pcs", "pcs", "pack", "pcs", "pcs", "roll",
-                   "pcs", "kg"],
-        "Harga Satuan": [5000, 3000, 1000, 2000, 8000, 15000, 1500, 10000, 5000, 4000, 2000, 500, 300, 6000,
-                         25000, 18000, 12000, 8000, 10000, 3000, 7000, 4000, 1500, 800, 15000, 2000, 20000, 15000,
-                         12000, 10000],
+        "Jumlah Stok": [500, 450, 300, 275, 100, 550, 350, 120, 235, 160, 500, 1200, 185, 110, 4, 3, 3,
+                        5, 75, 200, 10, 6, 25, 150],
+        "Satuan": ["Meter", "Meter", "Meter", "Meter", "Meter", "Roll", "Roll", "Roll", "Kg", "Box", "Pcs", "Pcs", "Box",
+                   "Roll", "Unit", "Unit", "Unit", "Unit", "Pcs", "Lembar", "Unit", "Unit",
+                   "Unit", "Box"],
+        "Harga Satuan": [25000, 30000, 40000, 35000, 45000, 12000, 15000, 18000, 60000, 25000, 5000, 500, 10000,
+                         15000, 3750000, 2500000, 2000000, 5000000, 50000, 5000, 40000, 350000,
+                         250000, 8000],
         "Gambar": [
-            "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=300",  # Karton
-            "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300",  # Botol Plastik
-            "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300",  # Label
-            "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=300",  # Tutup
-            "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=300",  # Dus
-            "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300",  # Palet
-            "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300",  # Kantong Plastik
-            "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300",  # Bungkus Vakum
-            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300",  # Pita
-            "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300",  # Kotak Makanan
-            "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=300",  # Gelas
-            "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300",  # Sendok
-            "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300",  # Sedotan
-            "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300",  # Tisu
-            "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300",  # Sabun
-            "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300",  # Deterjen
-            "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=300",  # Bubble Wrap
-            "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300",  # Kertas Wrapping
-            "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300",  # Box Hadiah
-            "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300",  # Tas Belanja
-            "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300",  # Botol Kaca
-            "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=300",  # Kaleng
-            "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=300",  # Tutup Kaleng
-            "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300",  # Label Kemasan
-            "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300",  # Pembungkus
-            "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300",  # Kantong Kertas
-            "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300",  # Palet Plastik
-            "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300",  # Kemasan Vakum
-            "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=300",  # Kotak Besar
-            "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300"   # Bahan Pengisi
+            "https://images.unsplash.com/photo-1630920501459-f3e99320c4a5?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1974",  # Kain Katun
+            "https://images.unsplash.com/photo-1651509245933-12e6cc1b24bc?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070",  # Kain Polyester
+            "https://images.unsplash.com/photo-1737093805570-5d314ff60b11?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070",  # Kain Denim
+            "https://images.unsplash.com/photo-1619043518800-7f14be467dca?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1074",  # Kain Satin
+            "https://plus.unsplash.com/premium_photo-1740017727071-a531c023dd29?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1974",  # Kain Fleece
+            "https://images.unsplash.com/photo-1663612318024-52d6b1fff823?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2067",  # Benang Katun
+            "https://plus.unsplash.com/premium_photo-1723489262770-1038d8b8e584?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070",  # Benang Polyester
+            "https://images.pexels.com/photos/6634613/pexels-photo-6634613.jpeg",  # Benang Sulam
+            "https://down-id.img.susercontent.com/file/id-11134201-7qul1-lg5fr8r5625z78_tn.webp",  # Pewarna Kain
+            "https://images.unsplash.com/photo-1711610378090-779a7881a789?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2067",  # Kancing
+            "https://plus.unsplash.com/premium_photo-1675179041387-83807aa274aa?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070",  # Zipper/Resleting
+            "https://images.pexels.com/photos/9594079/pexels-photo-9594079.jpeg",  # Label Pakaian
+            "https://m.media-amazon.com/images/I/81fFgnSrXYL._AC_SL1500_.jpg",  # Jarum Jahit
+            "https://plus.unsplash.com/premium_photo-1675202429654-4cc9d0e8f521?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",  # Tali/Pita
+            "https://images.unsplash.com/photo-1486622923572-7a7e18acf192?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1140",  # Mesin Jahit
+            "https://images.unsplash.com/photo-1614494731690-53925976ea29?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=735",  # Mesin Sablon
+            "https://image.galerymesinjahit.com/s3/productimages/webp/co16518/p91619/w300-h300/1bd770f0-6107-49df-9570-6f8cd5ec2e68w.jpg",  # Mesin Potong Kain 
+            "https://images.unsplash.com/photo-1633546805843-b2a1247dcf6f?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",  # Mesin Bordir
+            "https://images.unsplash.com/photo-1738441639602-f6f2ff69a814?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070",  # Papan Pola/Pattern
+            "https://images.pexels.com/photos/4614228/pexels-photo-4614228.jpeg",  # Kertas Pola/Pattern
+            "https://images-cdn.ubuy.co.id/633cdc6af345a132355c7401-sewing-machine-table-compact-folding.jpg",  # Meja Jahit
+            "https://plus.unsplash.com/premium_photo-1667238557714-f92e4a2b2d1c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2015",  # Setrika/Ironing
+            "https://plus.unsplash.com/premium_photo-1677838848150-0f749b7ee8b9?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1171",  # Manekin/Dummy
+            "https://plus.unsplash.com/premium_photo-1759882509155-535a06e9fb14?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"   # Peniti/Safety Pin
         ]
     })
 
 if "riwayat_transaksi" not in st.session_state:
     st.session_state.riwayat_transaksi = pd.DataFrame(columns=["Tanggal", "Barang", "Jenis", "Jumlah", "Satuan", "Nilai"])
+
+# --- Fungsi Simpan & Muat Data ---
+def simpan_data():
+    st.session_state.stok.to_csv("data_stok.csv", index=False)
+    st.session_state.riwayat_transaksi.to_csv("riwayat_transaksi.csv", index=False)
+
+def muat_data():
+    try:
+        st.session_state.stok = pd.read_csv("data_stok.csv")
+        st.session_state.riwayat_transaksi = pd.read_csv("riwayat_transaksi.csv")
+        muat_data()
+    except FileNotFoundError:
+        pass
 
 # --- Fungsi Navigasi ---
 def go_to_page(page_name):
@@ -244,7 +253,7 @@ barang_kritis = len(st.session_state.stok[st.session_state.stok["Jumlah Stok"] <
 
 # --- HALAMAN UTAMA (Dashboard dengan Navigasi) ---
 if st.session_state.page == 'home':
-    st.markdown('<h1 class="main-title">📦 Sistem Manajemen Stok Barang</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-title">Sistem Manajemen Stok Barang</h1>', unsafe_allow_html=True)
     st.markdown('<p class="sub-title">Kelola stok barang logistik Anda dengan mudah, efisien, dan kreatif. Pilih menu di bawah untuk mulai!</p>', unsafe_allow_html=True)
 
     # Metrik Cepat di Home
@@ -267,12 +276,12 @@ if st.session_state.page == 'home':
         st.markdown('</div>', unsafe_allow_html=True)
 
     # Navigasi dengan Tombol
-    st.subheader("🧭 Pilih Menu")
+    st.subheader("Menu")
     col1, col2, col3 = st.columns(3, gap="large")
     with col1:
         st.markdown('<div class="card"><span style="font-size:64px;">📊</span><br>Dashboard Detail</div>', unsafe_allow_html=True)
-        if st.button("Buka Dashboard", key="dashboard", help="Lihat analisis stok lengkap"):
-            go_to_page('dashboard')
+        if st.button("Buka Daftar Barang", key="Daftar Barang", help="Lihat analisis stok lengkap"):
+            go_to_page('Daftar Barang')
     with col2:
         st.markdown('<div class="card"><span style="font-size:64px;">🔄</span><br>Transaksi</div>', unsafe_allow_html=True)
         if st.button("Buka Transaksi", key="transaksi", help="Kelola barang masuk/keluar"):
@@ -283,31 +292,150 @@ if st.session_state.page == 'home':
             go_to_page('laporan')
 
 # --- HALAMAN DASHBOARD DETAIL ---
-elif st.session_state.page == 'dashboard':
+elif st.session_state.page == 'Daftar Barang':
     loading_animation()
-    st.markdown('<h1 class="main-title fade-in">📊 Dashboard Detail</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="sub-title">Analisis mendalam stok barang logistik Anda.</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-title fade-in" style="text-align:center;">Daftar Barang</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-title">Lihat Detail Barang Anda di Sini!</p>', unsafe_allow_html=True)
+    if st.button("Kembali", key="back_home_barang"):
+        go_to_page('home')
 
     # Tampilkan Barang dalam Grid Card dengan Gambar
-    st.subheader("📦 Daftar Barang dengan Gambar")
     cols = st.columns(3)
     for i, row in st.session_state.stok.iterrows():
         with cols[i % 3]:
             st.markdown(f"""
                 <div class="card">
-                    <img src="{row['Gambar']}" alt="{row['Nama Barang']}">
-                    <h4>{row['Nama Barang']}</h4>
+                    <img src="{row['Gambar']}" alt="{row['Daftar Barang']}">
+                    <h4>{row['Daftar Barang']}</h4>
                     <p>Stok: {row['Jumlah Stok']} {row['Satuan']}</p>
                     <p>Harga: Rp {row['Harga Satuan']:,}</p>
                 </div>
             """, unsafe_allow_html=True)
+            
+# --- HALAMAN TRANSAKSI (BARANG MASUK / KELUAR) ---
+elif st.session_state.page == 'transaksi':
+    loading_animation()
+    st.markdown('<h1 class="main-title fade-in" style="text-align:center;">Transaksi Barang</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-title">Catat barang yang masuk atau keluar dari gudang Anda.</p>', unsafe_allow_html=True)
 
-    # Grafik
-    fig1 = px.bar(st.session_state.stok, x="Nama Barang", y="Jumlah Stok", color="Nama Barang",
-                  title="Distribusi Stok", template="plotly_white")
-    fig1.update_layout(showlegend=False)
-    st.plotly_chart(fig1, use_container_width=True)
+    # Form input transaksi
+    with st.form("form_transaksi", clear_on_submit=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            barang = st.selectbox("Pilih Barang", st.session_state.stok["Daftar Barang"])
+            jenis = st.radio("Jenis Transaksi", ["Masuk", "Keluar"], horizontal=True)
+        with col2:
+            jumlah = st.number_input("Jumlah", min_value=1, value=1)
+            tanggal = st.date_input("Tanggal", datetime.now())
 
-    if barang_kritis > 0:
-        st.error("🚨 Stok rendah! Segera restok:")
-        st.dataframe(st.session_state.stok/st)
+        submitted = st.form_submit_button("Simpan Transaksi")
+
+    # Proses simpan transaksi
+    if submitted:
+        # Dapatkan indeks barang yang dipilih
+        idx = st.session_state.stok.index[st.session_state.stok["Daftar Barang"] == barang][0]
+        satuan = st.session_state.stok.loc[idx, "Satuan"]
+        harga = st.session_state.stok.loc[idx, "Harga Satuan"]
+        nilai = jumlah * harga
+
+        if jenis == "Masuk":
+            st.session_state.stok.loc[idx, "Jumlah Stok"] += jumlah
+        else:
+            if jumlah > st.session_state.stok.loc[idx, "Jumlah Stok"]:
+                st.error("Jumlah keluar melebihi stok yang tersedia!")
+            else:
+                st.session_state.stok.loc[idx, "Jumlah Stok"] -= jumlah
+
+        # Simpan ke riwayat
+        new_row = {
+            "Tanggal": tanggal.strftime("%Y-%m-%d"),
+            "Barang": barang,
+            "Jenis": jenis,
+            "Jumlah": jumlah,
+            "Satuan": satuan,
+            "Nilai": nilai
+        }
+        st.session_state.riwayat_transaksi = pd.concat([
+            st.session_state.riwayat_transaksi,
+            pd.DataFrame([new_row])
+        ], ignore_index=True)
+
+        st.success("Transaksi berhasil disimpan!")
+        simpan_data()
+
+    # Tampilkan tabel riwayat
+    st.markdown("### 📜 Riwayat Transaksi Terbaru")
+    if not st.session_state.riwayat_transaksi.empty:
+        st.dataframe(st.session_state.riwayat_transaksi.sort_values("Tanggal", ascending=False), use_container_width=True)
+    else:
+        st.info("Belum ada transaksi yang tercatat.")
+
+    # Tombol kembali
+    if st.button("Kembali"):
+        go_to_page('home')
+
+
+# --- HALAMAN LAPORAN ---
+elif st.session_state.page == 'laporan':
+    loading_animation()
+    st.markdown('<h1 class="main-title fade-in" style="text-align:center;">Laporan Stok & Transaksi</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-title">Unduh laporan dan lihat analisis data Anda di sini.</p>', unsafe_allow_html=True)
+
+    # Ringkasan metrik laporan
+    total_transaksi = len(st.session_state.riwayat_transaksi)
+    total_masuk = st.session_state.riwayat_transaksi[st.session_state.riwayat_transaksi["Jenis"] == "Masuk"]["Jumlah"].sum() if total_transaksi > 0 else 0
+    total_keluar = st.session_state.riwayat_transaksi[st.session_state.riwayat_transaksi["Jenis"] == "Keluar"]["Jumlah"].sum() if total_transaksi > 0 else 0
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.metric("Total Transaksi", total_transaksi)
+        st.markdown('</div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.metric("Total Barang Masuk", f"{total_masuk} unit")
+        st.markdown('</div>', unsafe_allow_html=True)
+    with col3:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.metric("Total Barang Keluar", f"{total_keluar} unit")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # Grafik Analisis Transaksi
+    if not st.session_state.riwayat_transaksi.empty:
+        fig = px.bar(
+            st.session_state.riwayat_transaksi,
+            x="Tanggal",
+            y="Jumlah",
+            color="Jenis",
+            title="Aktivitas Transaksi Harian",
+            text_auto=True,
+            barmode="group"
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Belum ada data transaksi untuk ditampilkan di grafik.")
+
+    # Download laporan
+    st.markdown("### 💾 Unduh Laporan")
+    laporan_csv = st.session_state.stok.to_csv(index=False).encode('utf-8')
+    transaksi_csv = st.session_state.riwayat_transaksi.to_csv(index=False).encode('utf-8')
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.download_button(
+            label="📦 Unduh Laporan Stok (.csv)",
+            data=laporan_csv,
+            file_name=f"Laporan_Stok_{datetime.now().strftime('%Y%m%d')}.csv",
+            mime="text/csv"
+        )
+    with col2:
+        st.download_button(
+            label="🔄 Unduh Laporan Transaksi (.csv)",
+            data=transaksi_csv,
+            file_name=f"Laporan_Transaksi_{datetime.now().strftime('%Y%m%d')}.csv",
+            mime="text/csv"
+        )
+
+    # Tombol kembali
+    if st.button("Kembali", key="back_home"):
+        go_to_page('home')
