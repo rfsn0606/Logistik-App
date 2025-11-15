@@ -1,0 +1,21 @@
+# Query: st.experiment
+# ContextLines: 1
+
+4 results - 1 file
+
+app.py:
+  137                  time.sleep(0.8)
+  138:                 st.rerun()
+  139              except Exception as e:
+
+  146              st.session_state.auth_mode = "register"
+  147:             st.rerun()
+  148  
+
+  165                  st.session_state.auth_mode = "login"
+  166:                 st.rerun()
+  167              except Exception as e:
+
+  172              st.session_state.auth_mode = "login"
+  173:             st.rerun()
+  174  
