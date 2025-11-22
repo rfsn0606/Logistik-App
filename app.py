@@ -825,19 +825,22 @@ with main_container:
 
         col1, col2 = st.columns([1.2, 1], gap="large") 
         
+        camera_image = None
         barang_data = None
         scan_result = None
 
         with col1:
-            
-            # 1. KAMERA LIVE SCANNER (Prioritas 1)
-
             st.subheader("📷 Ambil Foto Barcode")
-        
-        # Tombol kamera untuk ambil foto
-            camera_image = st.camera_input("Klik untuk ambil foto barcode", key="camera_input")
+            activate_camera = st.checkbox("Aktifkan Kamera untuk Ambil Foto Barcode", key="activate_camera")
         
             scan_result_camera = None
+            if activate_camera:
+            # ----------------------------------------------------
+            # 1. KAMERA AMBIL FOTO BARCODE (Hanya muncul jika diaktifkan)
+            # ----------------------------------------------------
+                st.markdown("**Arahkan kamera ke barcode dan klik ambil foto:**")
+                camera_image = st.camera_input("Klik untuk ambil foto barcode", key="camera_input")
+            
             if camera_image is not None:
                 try:
                     # Proses gambar dari kamera
@@ -868,6 +871,9 @@ with main_container:
                     
                 except Exception as e:
                     st.error(f"Gagal memproses foto: {e}")
+            else:
+                st.info("✅ Centang checkbox di atas untuk mengaktifkan kamera.")
+        
                 
             # 2. UPLOAD GAMBAR BARCODE (Prioritas 2)
             # ----------------------------------------------------
