@@ -157,9 +157,9 @@ if "show_delete_confirmation" not in st.session_state:
 # Daftar satuan yang diminta
 SATUAN_OPTIONS = ["meter", "unit", "pcs", "roll","kotak"]
 
-# -------------------------
-# CSS / Tema (TEMA BARU: VIBRANT GLASS)
-# -------------------------
+
+# CSS / Tema
+
 st.markdown(
     """
     <style>
@@ -171,7 +171,6 @@ st.markdown(
     }
     
     body {
-        /* Background gradien biru seperti temanmu */
         background: linear-gradient(135deg, #0a1d37, #0f4c75, #3282b8);
         background-attachment: fixed;
         font-family: 'Poppins', sans-serif;
@@ -184,7 +183,7 @@ st.markdown(
         background: rgba(255, 255, 255, 0.05) !important; /* Sedikit transparan */
         backdrop-filter: blur(5px);
         padding-center: 2rem;
-        border-radius: 15px;
+        border-radius: 18px;
         margin: 20px;
     }
 
@@ -197,7 +196,7 @@ st.markdown(
     
     /* Header / Title */
     .main-title {
-        font-size: 50px;
+        font-size: 80px;
         font-weight: 700;
         letter-spacing: 1px;
         text-align: center;
@@ -213,7 +212,7 @@ st.markdown(
         font-weight: 500;
     }
 
-    /* Welcome Container (mirip temanmu) */
+    /* Welcome Container 
     .welcome-container {
         position: relative;
         height: calc(100vh - 90px);
@@ -246,7 +245,7 @@ st.markdown(
         color: #0a1d37;
         padding: 15px 30px;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 1rem;
         cursor: pointer;
         font-weight: bold;
@@ -257,12 +256,6 @@ st.markdown(
     .cta-btn:hover {
         background: white;
         transform: scale(1.05);
-    }
-
-    @keyframes float {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-20px); }
-        100% { transform: translateY(0px); }
     }
 
     /* Auth box */
@@ -279,20 +272,12 @@ st.markdown(
 
     /* Card (Daftar Barang) */
     .card {
-        background: rgba(0, 0, 0, 0.15);
-        backdrop-filter: blur(8px);
-        border-radius: 12px;
-        padding: 20px;
+        border-radius: 15px;
+        padding: 30px;
         text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        height: 100%;
+        border: 1px solid rgba(300, 255, 255, 0.1);
+        height: 200%;
         transition: all 0.3s ease;
-    }
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0, 0.5);
-        border-color: #f7b733;
 
 /* --- TAMBAHAN CSS UNTUK GAMBAR SERAGAM --- */
     .img-container {
@@ -314,7 +299,7 @@ st.markdown(
     }
 
     .card:hover .img-container img {
-        transform: scale(1.1); /* Efek zoom dikit saat di-hover biar keren */
+        transform: scale(1.0); /* Efek zoom dikit saat di-hover biar keren */
     }        
 
     }
@@ -386,7 +371,7 @@ st.markdown(
     /* Plotly */
     .js-plotly-plot {
         background: rgba(0, 0, 0, 0.2) !important;
-        border-radius: 12px;
+        border-radius: 14px;
     }
     </style>
     """,
@@ -539,9 +524,6 @@ def set_edit_mode(barang_id):
 def login_page():
     c1, c2, c3 = st.columns([1, 1.3, 1]) # Dibuat sedikit lebih sempit
     with c2:
-        st.markdown('<div class="auth-box">', unsafe_allow_html=True)
-        # Anda bisa tambahkan logo di sini jika mau
-        # st.image("url_logo_anda.png", use_container_width=True) 
         st.markdown('<h1 class="main-title">Selamat Datang!</h1>', unsafe_allow_html=True)
         st.markdown('<p class="sub-title">Masuk ke akun LOGITRACK Anda</p>', unsafe_allow_html=True)
         
@@ -847,29 +829,46 @@ with main_container:
         scan_result = None
 
         with col1:
-            # ----------------------------------------------------
+            
             # 1. KAMERA LIVE SCANNER (Prioritas 1)
-            # ----------------------------------------------------
-            st.subheader("📷 Kamera Scanner (Live)")
-            try:
 
-                ctx = webrtc_streamer(
-                    key="barcode-scanner-live", # Ubah key agar unik dari file uploader
-                    video_processor_factory=BarcodeScanner,
-                    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-                    media_stream_constraints={"video": True, "audio": False},
-                )
-                st.success("Arahkan Kamera ke Barcode.")
-            
-            except Exception as e:
-                st.error(f"❌ Gagal mengakses kamera: {e}. Pastikan izin kamera diberikan di browser.")
-                st.info("💡 Tips: Refresh halaman, izinkan akses kamera, atau gunakan browser Chrome/Firefox.")
+            st.subheader("📷 Ambil Foto Barcode")
+        
+        # Tombol kamera untuk ambil foto
+            camera_image = st.camera_input("Klik untuk ambil foto barcode", key="camera_input")
+        
+            scan_result_camera = None
+            if camera_image is not None:
+                try:
+                    # Proses gambar dari kamera
+                    image = Image.open(camera_image)
+                    img_np = np.array(image.convert('RGB')) 
+                    img_gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
+                    decoded_objects = decode(img_gray)
 
-            scan_result_live = None
-            if ctx.video_transformer and ctx.video_transformer.found_barcode:
-                scan_result_live = ctx.video_transformer.found_barcode
-            
-            # ----------------------------------------------------
+                    if decoded_objects:
+                        scan_result_camera = decoded_objects[0].data.decode("utf-8")
+                        st.success(f"🎉 Barcode Terdeteksi dari Foto: **{scan_result_camera}**")
+                    
+                    # Tampilkan gambar dengan kotak hijau di sekitar barcode (opsional)
+                        for obj in decoded_objects:
+                            points = obj.polygon
+                            if len(points) > 4:
+                                hull = cv2.convexHull(np.array([p for p in points], dtype=np.float32))
+                                cv2.polylines(img_np, [np.int32(hull)], True, (0, 255, 0), 3)
+                            else:
+                                cv2.polylines(img_np, [np.array(points, dtype=np.int32)], True, (0, 255, 0), 3)
+                            cv2.putText(img_np, scan_result_camera, (obj.rect.left, obj.rect.top - 10), 
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+                    
+                    # Tampilkan gambar hasil
+                        st.image(img_np, caption="Foto dengan Barcode Terdeteksi", use_column_width=True)
+                    else:
+                        st.warning("⚠️ Tidak ada barcode yang terdeteksi di foto ini. Coba ambil foto lagi dengan pencahayaan baik.")
+                    
+                except Exception as e:
+                    st.error(f"Gagal memproses foto: {e}")
+                
             # 2. UPLOAD GAMBAR BARCODE (Prioritas 2)
             # ----------------------------------------------------
             st.markdown("---")
@@ -897,11 +896,8 @@ with main_container:
             # ----------------------------------------------------
             # 3. KONSOLIDASI HASIL SCAN (Penentuan Prioritas)
             # ----------------------------------------------------
-            kode_barcode_final = scan_result_live 
-            
-            if not kode_barcode_final:
-                kode_barcode_final = scan_result_upload
-            
+            kode_barcode_final = scan_result_camera or scan_result_upload
+                     
             # ----------------------------------------------------
             # 4. INPUT MANUAL (Prioritas 3 / Paling Rendah)
             # ----------------------------------------------------
@@ -941,8 +937,6 @@ with main_container:
                 else:
                     st.warning("⚠️ Kolom 'kode_barcode' belum ada di data stok.")
            
-
-
         with col2:
             # FORM INPUT TRANSAKSI (HANYA MUNCUL JIKA BARANG DITEMUKAN)
             if barang_data is not None:
@@ -1304,13 +1298,13 @@ with main_container:
             
             fig = px.bar(transaksi_harian, x="Tanggal", y="Jumlah", color="Jenis", 
                          title="", barmode="group", text_auto=True,
-                         color_discrete_map={"Masuk": "#ff4b2b", "Keluar": "#f7b733"}) # Warna tema baru
+                         color_discrete_map={"Masuk": "#b89d99", "Keluar": "#f7b733"}) # Warna tema baru
             
             # Update layout agar cocok dengan tema
             fig.update_layout(
-                plot_bgcolor='#be9b7b', 
-                paper_bgcolor='rgba(0,0,0,0)',
-                font_color='#E0E0E0', # Warna font baru
+                plot_bgcolor="#cd7f59", 
+                paper_bgcolor= "#ECB079",
+                font_color="#231F1F", # Warna font baru
                 legend_title_text=''
             )
             st.plotly_chart(fig, use_container_width=True)
