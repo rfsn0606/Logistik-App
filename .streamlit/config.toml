@@ -1,0 +1,7 @@
+[client]
+showSidebar = true
+
+[global]
+# Perubahan ini seringkali membantu mencegah error threading pada WebRTC
+# saat terjadi re-run atau shutdown yang tidak sempurna.
+minSecondsBetweenRun = 0.5
