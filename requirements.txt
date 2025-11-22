@@ -8,5 +8,5 @@ supabase
 python-barcode
 Pillow
 pyzbar
-opencv-python
+opencv-python-headless
 streamlit-webrtc
