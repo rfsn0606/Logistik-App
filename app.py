@@ -682,7 +682,7 @@ with main_container:
             nilai_total = int((df_stok["Jumlah Stok"] * df_stok["Harga Satuan"]).sum())
             barang_kritis = barang_kritis = len(df_stok[df_stok["Jumlah Stok"] < 10])
         except Exception:
-            st.error(f"⚠️ **ERROR FATAL PERHITUNGAN NILAI INVENTARIS:** {}")
+            st.error(f"⚠️ **ERROR FATAL PERHITUNGAN NILAI INVENTARIS:** {e}")
             total_barang = 0
             total_stok = 0
             nilai_total = 0
