@@ -55,26 +55,32 @@ class BarcodeScanner(VideoTransformerBase):
     def transform(self, frame):
         img = frame.to_ndarray(format="bgr24")
         
+# Debugging: Tampilkan frame count di layar
+        cv2.putText(img, f"Frame: {self.frame_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        
         # Deteksi barcode dalam frame
         decoded_objects = decode(img)
-        
-        for obj in decoded_objects:
+        if decoded_objects:
+            for obj in decoded_objects:
             # Ambil data barcode
-            barcode_data = obj.data.decode("utf-8")
-            self.found_barcode = barcode_data
+                barcode_data = obj.data.decode("utf-8")
+                self.found_barcode = barcode_data
             
             # Gambar kotak hijau di sekitar barcode (Visual Feedback)
-            points = obj.polygon
-            if len(points) > 4:
-                hull = cv2.convexHull(np.array([p for p in points], dtype=np.float32))
-                hull = hull.reshape((-1, 1, 2))
-                cv2.polylines(img, [np.int32(hull)], True, (0, 255, 0), 3)
-            else:
-                cv2.polylines(img, [np.array(points, dtype=np.int32)], True, (0, 255, 0), 3)
+                points = obj.polygon
+                if len(points) > 4:
+                    hull = cv2.convexHull(np.array([p for p in points], dtype=np.float32))
+                    hull = hull.reshape((-1, 1, 2))
+                    cv2.polylines(img, [np.int32(hull)], True, (0, 255, 0), 3)
+                else:
+                    cv2.polylines(img, [np.array(points, dtype=np.int32)], True, (0, 255, 0), 3)
 
             # Tampilkan teks barcode di layar kamera
-            cv2.putText(img, barcode_data, (obj.rect.left, obj.rect.top - 10), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+                cv2.putText(img, barcode_data, (obj.rect.left, obj.rect.top - 10), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+        else:
+            # Jika tidak ada barcode, tampilkan pesan
+            cv2.putText(img, "No barcode detected", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             
         return img
 # -------------------------
@@ -845,13 +851,19 @@ with main_container:
             # 1. KAMERA LIVE SCANNER (Prioritas 1)
             # ----------------------------------------------------
             st.subheader("📷 Kamera Scanner (Live)")
+            try:
+
+                ctx = webrtc_streamer(
+                    key="barcode-scanner-live", # Ubah key agar unik dari file uploader
+                    video_processor_factory=BarcodeScanner,
+                    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
+                    media_stream_constraints={"video": True, "audio": False},
+                )
+                st.success("✅ Kamera berhasil diakses. Arahkan ke barcode.")
             
-            ctx = webrtc_streamer(
-                key="barcode-scanner-live", # Ubah key agar unik dari file uploader
-                video_processor_factory=BarcodeScanner,
-                rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-                media_stream_constraints={"video": True, "audio": False},
-            )
+            except Exception as e:
+                st.error(f"❌ Gagal mengakses kamera: {e}. Pastikan izin kamera diberikan di browser.")
+                st.info("💡 Tips: Refresh halaman, izinkan akses kamera, atau gunakan browser Chrome/Firefox.")
 
             scan_result_live = None
             if ctx.video_transformer and ctx.video_transformer.found_barcode:
@@ -868,14 +880,9 @@ with main_container:
             if uploaded_file is not None:
                 # Membaca dan memproses gambar yang diunggah
                 try:
-                    # 1. Buka file sebagai image PIL
                     image = Image.open(io.BytesIO(uploaded_file.read()))
-                    
-                    # 2. Konversi ke Numpy Array (Format OpenCV)
                     img_np = np.array(image.convert('RGB')) 
                     img_gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
-                    
-                    # 3. Decode barcode
                     decoded_objects = decode(img_gray)
                     
                     if decoded_objects:
@@ -920,8 +927,6 @@ with main_container:
                     
                     if not df_match.empty:
                         barang_data = df_match.iloc[0]
-                        
-                        # TAMPILKAN DETAIL BARANG
                         st.success(f"✅ Barang Ditemukan: **{barang_data['Daftar Barang']}**")
                         
                         harga_disp = int(pd.to_numeric(barang_data['Harga Satuan'], errors='coerce') or 0)
@@ -936,8 +941,6 @@ with main_container:
                 else:
                     st.warning("⚠️ Kolom 'kode_barcode' belum ada di data stok.")
            
-
-
         with col2:
             # FORM INPUT TRANSAKSI (HANYA MUNCUL JIKA BARANG DITEMUKAN)
             if barang_data is not None:
