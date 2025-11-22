@@ -859,7 +859,7 @@ with main_container:
                     rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
                     media_stream_constraints={"video": True, "audio": False},
                 )
-                st.success("✅ Kamera berhasil diakses. Arahkan ke barcode.")
+                st.success("Arahkan Kamera ke Barcode.")
             
             except Exception as e:
                 st.error(f"❌ Gagal mengakses kamera: {e}. Pastikan izin kamera diberikan di browser.")
@@ -941,6 +941,8 @@ with main_container:
                 else:
                     st.warning("⚠️ Kolom 'kode_barcode' belum ada di data stok.")
            
+
+
         with col2:
             # FORM INPUT TRANSAKSI (HANYA MUNCUL JIKA BARANG DITEMUKAN)
             if barang_data is not None:
