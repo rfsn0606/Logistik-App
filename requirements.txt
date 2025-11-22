@@ -5,3 +5,8 @@ openpyxl
 plotly
 python-dotenv  
 supabase
+python-barcode
+Pillow
+pyzbar
+opencv-python
+streamlit-webrtc
