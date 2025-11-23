@@ -963,7 +963,11 @@ with main_container:
                 if submitted:
                     try:
                         # Ambil data
-                        barang_id = barang_data["id_barang"] # Pastikan id_barang ada
+                        barang_id = barang_data.get("id", "").strip() # Pastikan id_barang ada
+                        if not barang_id or barang_id == "":
+                            st.error("❌ ID Barang tidak valid. Pastikan data barang lengkap.")
+                            st.stop()
+                         
                         stok_lama = int(pd.to_numeric(barang_data["Jumlah Stok"], errors="coerce") or 0)
                         harga = int(pd.to_numeric(barang_data["Harga Satuan"], errors="coerce") or 0)
                         nilai = jumlah * harga
@@ -980,7 +984,7 @@ with main_container:
                         # Payload untuk Supabase
                         payload_t = {
                             "tanggal": tanggal.strftime("%Y-%m-%d"),
-                            "id_barang": barang_id, # ID Barang (Foreign Key)
+                            "id_barang": str(barang_id), # ID Barang (Foreign Key)
                             "nama_barang": barang_data["Daftar Barang"],
                             "jenis": jenis,
                             "jumlah": int(jumlah),
