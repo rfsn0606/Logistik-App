@@ -535,10 +535,26 @@ def login_page():
                 user_session = supabase.auth.sign_in_with_password({"email": email, "password": password})
                 st.session_state.user = user_session
                 
-                # --- INI KODE FITUR ROLE (SAMA SEPERTI SEBELUMNYA) ---
-                user_data = user_session.user.user_metadata
-                role = user_data.get('role', 'Karyawan') # Default 'Karyawan'
-                st.session_state.user_role = role
+                #  FITUR ROLE 
+                # -----------------------------------------------------
+             # PENGAMBILAN ROLE DARI DATABASE (SOLUSI STABIL)
+             # -----------------------------------------------------
+             # 1. Ambil ID unik user yang login (KUNCI UTAMA)
+                user_id = user_session.user.id
+             
+             # 2. Query ke tabel 'users' untuk ambil role-nya berdasarkan ID
+                data_role, count = supabase.from_('users').select("role").eq("id", user_id).single().execute()
+             
+             # 3. Tentukan role dari hasil query
+                if data_role and data_role[1]:
+                 # Jika data ditemukan di tabel 'users', gunakan role dari database
+                    role_from_db = data_role[1]['role']
+                    st.session_state.user_role = role_from_db
+                else:
+                 # Jika data belum ada di tabel 'users', setting defaultnya
+                 # Ini hanya terjadi jika user baru daftar dan kamu belum isi role-nya di Table Editor
+                    st.session_state.user_role = "Karyawan" 
+             # -----------------------------------------------------
                 
                 st.success(f"✅ Login berhasil! Selamat datang!")
                 time.sleep(1)
