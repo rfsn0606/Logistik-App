@@ -196,12 +196,12 @@ st.markdown(
     
     /* Header / Title */
     .main-title {
-        font-size: 80px;
-        font-weight: 700;
+        font-size: 100px;
+        font-weight: 750;
         letter-spacing: 1px;
         text-align: center;
         margin: 6px 0 0 0;
-        background: linear-gradient(90deg, #bbe1fa, #f7b733); /* Biru ke Gold */
+        background: linear-gradient(90deg, #bbe1fa, #f7b733);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
@@ -209,7 +209,7 @@ st.markdown(
         text-align: center;
         color: #E0E0E0;
         margin-bottom: 24px;
-        font-weight: 500;
+        font-weight: 550;
     }
 
     /* Welcome Container 
@@ -220,7 +220,7 @@ st.markdown(
         justify-content: center;
         align-items: center;
         text-align: center;
-        padding: 20px;
+        padding: 25px;
         z-index: 10;
     }
 
@@ -669,7 +669,7 @@ with main_container:
             total_stok = int(df_stok["Jumlah Stok"].sum())
             nilai_total = int((df_stok["Jumlah Stok"] * df_stok["Harga Satuan"]).sum())
             barang_kritis = barang_kritis = len(df_stok[df_stok["Jumlah Stok"] < 10])
-        except Exception:
+        except Exception as e:
             st.error(f"⚠️ **ERROR FATAL PERHITUNGAN NILAI INVENTARIS:** {e}")
             total_barang = 0
             total_stok = 0
@@ -705,7 +705,7 @@ with main_container:
     
             #LANJUTKAN DENGAN MENAMPILKAN DATAFRAME STOK RENDAH
                 st.dataframe(
-                    stok_df.sort_values("Jumlah Stok").head(15)[["Daftar Barang", "Jumlah Stok", "Satuan"]],
+                    stok_df.sort_values("Jumlah Stok").head(5)[["Daftar Barang", "Jumlah Stok", "Satuan"]],
                     use_container_width=True,
                     hide_index=True
                 )
@@ -1016,7 +1016,7 @@ with main_container:
                 st.markdown("### 📜 Riwayat Terakhir")
                 if not st.session_state.riwayat_transaksi.empty:
                     st.dataframe(
-                        st.session_state.riwayat_transaksi.head(5)[['Tanggal', 'Barang', 'Jenis', 'Jumlah']], 
+                        st.session_state.riwayat_transaksi.head(10)[['Tanggal', 'Barang', 'Jenis', 'Jumlah']], 
                         use_container_width=True, 
                         hide_index=True
                     )
@@ -1308,14 +1308,14 @@ with main_container:
             
             fig = px.bar(transaksi_harian, x="Tanggal", y="Jumlah", color="Jenis", 
                          title="", barmode="group", text_auto=True,
-                         color_discrete_map={"Masuk": "#b89d99", "Keluar": "#f7b733"}) # Warna tema baru
+                         color_discrete_map={"Masuk": "#c68e85", "Keluar": "#f7b733"}) # Warna tema baru
             
             # Update layout agar cocok dengan tema
             fig.update_layout(
-                plot_bgcolor="#cd7f59", 
-                paper_bgcolor= "#ECB079",
+                plot_bgcolor="#E0BF9F", 
+                paper_bgcolor= "#E0BF9F",
                 font_color="#231F1F", # Warna font baru
-                legend_title_text=''
+                legend_title_text=''              
             )
             st.plotly_chart(fig, use_container_width=True)
         else:
