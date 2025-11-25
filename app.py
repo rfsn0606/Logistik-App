@@ -187,18 +187,26 @@ st.markdown(
         margin: 20px;
     }
 
-    /* Sidebar */
+    section[data-testid="stSidebar"] {
+    /* Menggunakan #eedc82 dengan !important untuk override semua setting tema lama */
+    background-color: #f7f2d4 !important;
+    }
+
+section[data-testid="stSidebar"] * {
+    color: #5f5b44 !important;
+    }
+
     .st-emotion-cache-16txtl3 {
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(10px);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: #eedc82 !important; /* Memastikan background box konten di sidebar juga sama */
+    backdrop-filter: none !important; /* Menghapus efek blur jika ada */
+    border-right: none !important; /* Menghapus garis kanan */
     }
     
     /* Header / Title */
     .main-title {
-        font-size: 100px;
-        font-weight: 750;
-        letter-spacing: 1px;
+        font-size: 300px;
+        font-weight: 800;
+        letter-spacing: 2px;
         text-align: center;
         margin: 6px 0 0 0;
         background: linear-gradient(90deg, #bbe1fa, #f7b733);
@@ -272,8 +280,8 @@ st.markdown(
 
     /* Card (Daftar Barang) */
     .card {
-        border-radius: 15px;
-        padding: 30px;
+        border-radius: 25px;
+        padding: 10px;
         text-align: center;
         border: 1px solid rgba(300, 255, 255, 0.1);
         height: 200%;
@@ -282,10 +290,10 @@ st.markdown(
 /* --- TAMBAHAN CSS UNTUK GAMBAR SERAGAM --- */
     .img-container {
         width: 100%;
-        height: 180px;  /* TINGGI TETAP: Ubah angka ini jika ingin lebih tinggi/pendek */
+        height: 100px;  /* TINGGI TETAP: Ubah angka ini jika ingin lebih tinggi/pendek */
         overflow: hidden;
-        border-radius: 10px;
-        margin-bottom: 12px;
+        border-radius: 15px;
+        margin-bottom: 10px;
         background-color: #eee; /* Warna loading sementara */
         position: relative;
     }
@@ -306,19 +314,19 @@ st.markdown(
     .card img {
         border-radius: 8px;
         object-fit: cover;
-        height: 180px;
+        height: 110px;
         width: 100%;
         margin-bottom: 12px;
     }
 
     /* Buttons */
     .stButton>button {
-        background: linear-gradient(90deg, #ff4b2b, #ff7854) !important;
+        background: linear-gradient(80deg, #eaba53, #f3dca5) !important;
         color: #FFFFFF !important;
         border-radius: 10px !important;
         padding: 10px 16px !important;
-        font-weight: 600 !important;
-        min-height: 44px !important;
+        font-weight: 700 !important;
+        min-height: 45px !important;
         border: none !important;
         transition: all 0.3s ease;
     }
@@ -345,14 +353,15 @@ st.markdown(
     }
 
     /* Input styling */
-    .stTextInput>div>div>input, .stNumberInput>div>div>input, .stSelectbox>div>div, .stDateInput>div>div {
+    .stTextInput>div>div>input, 
+    .stNumberInput>div>div>input, .stSelectbox>div>div, .stDateInput>div>div {
         border-radius: 10px;
-        background: rgba(0, 0, 0, 0.2);
+        background: #f5f5f5;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #FFFFFF;
+        color: #212121;
     }
     .stTextInput>div>div>input:focus, .stNumberInput>div>div>input:focus {
-        border-color: #f7b733;
+        border-color: #a6a6a6;
     }
     
     /* Metric styling */
@@ -786,11 +795,11 @@ with main_container:
                             st.markdown(f"""
                             <div style="
                                 width: 100%; 
-                                height: 350px; 
+                                height: 250px; 
                                 overflow: hidden; 
                                 border-radius: 10px; 
                                 margin-bottom: 12px;
-                                background-color: #e08484; 
+                                background-color: #333333; 
                                 position: relative;">
                                 <img src="{gambar_url}" 
                                      style="width: 100%; height: 100%; object-fit: cover; object-position: center;" 
@@ -1206,7 +1215,7 @@ with main_container:
             st.stop()
 
         st.markdown(f'<h1 class="main-title">Edit Barang: {barang_data["Daftar Barang"]}</h1>', unsafe_allow_html=True)
-        st.markdown('<p class="sub-title">Perbarui detail barang Anda (Halaman ini hanya untuk Atasan)</p>', unsafe_allow_html=True)
+        st.markdown('<p class="sub-title">Perbarui detail barang Anda</p>', unsafe_allow_html=True)
 
         with st.form("form_edit_barang"):
             col1, col2 = st.columns(2, gap="large")
