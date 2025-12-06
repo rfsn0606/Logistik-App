@@ -7,7 +7,7 @@ import time
 from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
-
+from supabase import create_client, Client
 
 # --- TAMBAHAN IMPORT UNTUK SCANNER ---
 import cv2
@@ -437,7 +437,7 @@ def load_stok_from_supabase_VFINAL():
             for col in ["id_barang","nama_barang","jumlah_stok","satuan","harga_satuan","gambar_url","tanggal_update","kode_barcode"]:
                 if col not in df.columns:
                     df[col] = 0 if col in ["jumlah_stok", "harga_satuan"] else ""
-            
+
            # 1. FIX: GANTI NULL menjadi 0
             df['harga_satuan'] = df['harga_satuan'].apply(lambda x: 0 if pd.isna(x) or str(x).strip() == '' else x)
             df['jumlah_stok'] = df['jumlah_stok'].apply(lambda x: 0 if pd.isna(x) or str(x).strip() == '' else x)
@@ -482,7 +482,7 @@ def load_riwayat_from_supabase():
                 "jumlah": "Jumlah",
                 "satuan": "Satuan",
                 "nilai": "Nilai"               # Total harga transaksi
-            
+                
             }
             # Hanya rename kolom yang ada
             df = df.rename(columns={k: v for k, v in mapping.items() if k in df.columns})
@@ -769,6 +769,18 @@ with main_container:
         else:
             filtered = st.session_state.stok.copy()
 
+        st.markdown("---")
+        col_sort, col_order = st.columns(2)
+        with col_sort:
+            sort_by = st.selectbox("Urutkan Berdasarkan", ["Daftar Barang", "Jumlah Stok", "Harga Satuan"], key="sort_by")
+        with col_order:
+            sort_order = st.selectbox("Urutan", ["Ascending", "Descending"], key="sort_order")
+
+        if sort_order == "Ascending":
+            filtered = filtered.sort_values(sort_by, ascending=True)
+        else:
+            filtered = filtered.sort_values(sort_by, ascending=False)
+
         if filtered.empty:
             st.info("Belum ada data barang yang tersimpan atau hasil pencarian kosong.")
         else:
@@ -790,7 +802,9 @@ with main_container:
                         with cols_row[c]:
                             st.markdown('<div class="card">', unsafe_allow_html=True)
                             gambar_url = str(row.get("Gambar", "")).strip()
-                            
+                            if not gambar_url:
+                                gambar_url = "https://via.placeholder.com/300x180?text=No+Image"  # Placeholder default
+
                         
                             st.markdown(f"""
                             <div style="
@@ -1071,8 +1085,28 @@ with main_container:
                 satuan = st.selectbox("Satuan", SATUAN_OPTIONS, index=None, placeholder="Pilih satuan...")
                 harga_satuan = st.text_input("Harga Satuan (Rp)")
                 gambar_url = st.text_input("URL Gambar", placeholder="https://.../gambar.jpg")
-            
-            kode_barcode = st.text_input("Kode Barcode", placeholder="Contoh: LGT-001")
+                uploaded_image = st.file_uploader("Atau Upload Gambar (Alternatif URL)", type=['jpg', 'png', 'jpeg'], key="upload_gambar")
+
+            import uuid
+            try:
+    # Query kode barcode terakhir dari Supabase
+                resp_last = supabase.table("daftar_barang").select("kode_barcode").order("kode_barcode", desc=True).limit(1).execute()
+                if resp_last.data:
+                    last_code = resp_last.data[0]["kode_barcode"]
+        # Extract angka dari LGT-XXX
+                    if last_code.startswith("LGT-"):
+                        last_num = int(last_code.split("-")[1])
+                        new_num = last_num + 1
+                    else:
+                        new_num = 1  # Jika tidak ada, mulai dari 1
+                else:
+                    new_num = 1  # Jika tabel kosong, mulai dari 1
+    
+                kode_barcode = f"LGT-{new_num:03d}"  # Format 001, 002, dll.
+            except Exception as e:
+                st.warning(f"Gagal generate kode otomatis: {e}. Menggunakan UUID.")
+                kode_barcode = f"LGT-{str(uuid.uuid4())[:8].upper()}" 
+            st.text_input("Kode Barcode (Otomatis)", value=kode_barcode, disabled=True, key="auto_barcode")
 
             #GENERATOR BARCODE
             barcode_bytes = None
@@ -1124,8 +1158,9 @@ with main_container:
         # LOGIKA PENYIMPANAN DATA (Jika submitted)
         # ------------------------------------------------------------------
         if submitted:
-            if not nama_barang or not satuan:
-                st.error("Nama Barang dan Satuan wajib diisi!")
+            if not nama_barang or not satuan or not harga_satuan or not gambar_url:
+                st.error("Semua kolom wajib diisi!")
+                st.stop()
             else:
                 try:
                     # ... (Logika Cek Duplikat dan Simpan ke Supabase tetap sama) ...
@@ -1173,7 +1208,6 @@ with main_container:
                         
                         # Tombol Pindah Halaman Manual (tetap ada)
                         if st.button("Lanjutkan ke Daftar Barang"):
-                            # Hapus state barcode agar tidak muncul di load berikutnya
                             if 'current_barcode_bytes' in st.session_state:
                                  del st.session_state['current_barcode_bytes']
                             go_to_page("Daftar Barang")
@@ -1198,9 +1232,7 @@ with main_container:
             st.stop()
 
         load_stok_from_supabase_VFINAL()
-        
-
-        # Ambil data barang yang akan diedit
+         # Ambil data barang yang akan diedit
         try: 
             barang_data = st.session_state.stok[st.session_state.stok["id"] == barang_id].iloc[0]
         except IndexError:
@@ -1237,6 +1269,7 @@ with main_container:
                 harga_satuan_baru = st.number_input("Harga Satuan (Rp)", min_value=0, value=int(barang_data["Harga Satuan"]))
             
             gambar_url_baru = st.text_input("URL Gambar", value=barang_data["Gambar"], placeholder="https://.../gambar.jpg")
+            uploaded_image = st.file_uploader("Atau Upload Gambar", type=['jpg', 'png', 'jpeg'], key="upload_gambar_edit")
             kode_barcode_baru = st.text_input("Kode Barcode", value=barang_data.get("kode_barcode", ""), placeholder="Contoh: LGT-001")
             
             submitted = st.form_submit_button("Simpan Perubahan", use_container_width=True)
@@ -1274,10 +1307,17 @@ with main_container:
                 st.error("Satuan wajib diisi!")
             else:
                 try:
+                    final_gambar_url = gambar_url
+                    if uploaded_image is not None:
+                    # Upload ke Supabase storage
+                        file_name = f"{nama_barang.replace(' ', '_')}_{uploaded_image.name}"
+                        supabase.storage.from_("barang-images").upload(file_name, uploaded_image.getvalue())
+                        final_gambar_url = supabase.storage.from_("barang-images").get_public_url(file_name)
+
                     payload = {
                         "satuan": satuan_baru,
-                        "harga_satuan": int(harga_satuan_baru),
-                        "gambar_url": gambar_url_baru,
+                        "harga_satuan": int((harga_satuan.replace(',', '').replace('.', '') if harga_satuan else '0')), 
+                        "gambar_url": final_gambar_url, 
                         "kode_barcode": kode_barcode_baru.strip()
                     }
                     
@@ -1335,7 +1375,7 @@ with main_container:
                          title="", barmode="group", text_auto=True,
                          color_discrete_map={"Masuk": "#c68e85", "Keluar": "#f7b733"}) # Warna tema baru
             
-            # Update layout agar cocok dengan tema
+            # Update layout 
             fig.update_layout(
                 plot_bgcolor="#E0BF9F", 
                 paper_bgcolor= "#E0BF9F",
